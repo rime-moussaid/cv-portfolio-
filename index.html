@@ -49,7 +49,6 @@
             height: 100vh;
         }
 
-        /* Glitch Effect for Awwwards style */
         .glitch-text:hover {
             animation: glitch 0.3s cubic-bezier(.25,.46,.45,.94) both infinite;
         }
@@ -102,7 +101,6 @@
 
         .ar-dir { direction: rtl; }
 
-        /* Custom Cursor */
         #cursor {
             width: 20px;
             height: 20px;
@@ -132,7 +130,7 @@
     <div id="cursor"></div>
     <div id="three-canvas"></div>
 
-    <!-- Loading Screen -->
+    <!-- Écran de chargement -->
     <div class="loading-overlay" id="loader">
         <div class="text-white font-syne text-4xl mb-4 tracking-tighter overflow-hidden">
             <span id="loader-text" class="inline-block">INITIALIZING_MATRIX</span>
@@ -142,19 +140,17 @@
         </div>
     </div>
 
-    <!-- Top Navigation -->
+    <!-- Navigation -->
     <nav class="fixed top-0 w-full p-6 flex justify-between items-center z-50">
         <div class="text-xl font-syne font-black tracking-tighter">RIME.M <span class="text-xs opacity-50 font-light">DATA TRANSLATION HUB</span></div>
         
         <div class="flex items-center gap-6">
-            <!-- Language Switcher -->
             <div class="flex glass-panel p-1 rounded-full gap-1">
                 <button onclick="setLanguage('en')" id="btn-en" class="lang-btn px-4 py-1 rounded-full text-xs font-bold uppercase transition-all active">EN</button>
                 <button onclick="setLanguage('fr')" id="btn-fr" class="lang-btn px-4 py-1 rounded-full text-xs font-bold uppercase transition-all">FR</button>
                 <button onclick="setLanguage('ar')" id="btn-ar" class="lang-btn px-4 py-1 rounded-full text-xs font-bold uppercase transition-all">AR</button>
             </div>
             
-            <!-- Theme Toggle -->
             <div class="theme-toggle" onclick="toggleTheme()">
                 <div class="theme-ball"></div>
             </div>
@@ -162,7 +158,7 @@
     </nav>
 
     <main class="relative z-10 pt-32 px-6 lg:px-24">
-        <!-- Hero -->
+        <!-- Section Hero -->
         <section class="min-h-[80vh] flex flex-col justify-center">
             <div class="grid lg:grid-cols-12 gap-12 items-center">
                 <div class="lg:col-span-8">
@@ -184,15 +180,15 @@
             </div>
         </section>
 
-        <!-- Dynamic Content injected via JS -->
+        <!-- Contenu dynamique injecté via JS -->
         <div id="content-matrix" class="grid md:grid-cols-2 gap-8 py-20">
-            <!-- Cards will appear here -->
+            <!-- Les cartes d'expérience et de compétences apparaîtront ici -->
         </div>
 
-        <!-- Contact Section -->
+        <!-- Section Contact -->
         <section class="py-32 border-t border-white/10">
             <div class="max-w-4xl mx-auto text-center">
-                <h2 id="contact-title" class="font-syne text-5xl md:text-7xl font-bold mb-12">CONNECT_</h2>
+                <h2 id="contact-title" class="font-syne text-5xl md:text-7xl font-bold mb-12 uppercase tracking-tighter">CONNECT_</h2>
                 <div class="grid md:grid-cols-3 gap-8">
                     <a href="mailto:rimemoussaid908@gmail.com" class="glass-panel p-8 hover:bg-indigo-500 hover:text-white transition-all">
                         <i class="fas fa-envelope text-3xl mb-4"></i>
@@ -202,9 +198,9 @@
                         <i class="fas fa-phone text-3xl mb-4"></i>
                         <p class="font-bold">WhatsApp</p>
                     </a>
-                    <a href="#" class="glass-panel p-8 hover:bg-indigo-500 hover:text-white transition-all">
-                        <i class="fab fa-linkedin text-3xl mb-4"></i>
-                        <p class="font-bold">LinkedIn</p>
+                    <a href="https://github.com/rime-moussaid" target="_blank" class="glass-panel p-8 hover:bg-indigo-500 hover:text-white transition-all">
+                        <i class="fab fa-github text-3xl mb-4"></i>
+                        <p class="font-bold">GitHub</p>
                     </a>
                 </div>
             </div>
@@ -212,7 +208,7 @@
     </main>
 
     <script>
-        // DATA MATRIX - Multi-language JSON array
+        // DATA MATRIX - JSON Multi-langues
         const DATA_MATRIX = {
             en: {
                 badge: "Data Translation Expert",
@@ -261,7 +257,6 @@
             }
         };
 
-        // --- THEME & STATE ---
         let currentLang = 'en';
         
         function setLanguage(lang) {
@@ -272,7 +267,6 @@
             const data = DATA_MATRIX[lang];
             const isAr = lang === 'ar';
             
-            // Update Text
             document.getElementById('hero-badge').innerText = data.badge;
             document.getElementById('hero-tagline').innerText = data.tagline;
             document.getElementById('contact-title').innerText = data.contact;
@@ -280,7 +274,6 @@
             if(isAr) document.body.classList.add('ar-dir', 'font-arabic');
             else document.body.classList.remove('ar-dir', 'font-arabic');
 
-            // Render Sections
             const matrix = document.getElementById('content-matrix');
             matrix.innerHTML = '';
             
@@ -289,8 +282,8 @@
                 secEl.innerHTML = `<h3 class="font-syne text-4xl font-bold mb-8 opacity-40 uppercase tracking-widest">${sec.title}</h3>`;
                 sec.items.forEach(item => {
                     const card = `
-                        <div class="glass-panel p-8 mb-6 hover:translate-x-4 transition-all duration-500">
-                            <h4 class="text-2xl font-bold text-indigo-500 mb-1">${item.head}</h4>
+                        <div class="glass-panel p-8 mb-6 hover:translate-x-4 transition-all duration-500 group">
+                            <h4 class="text-2xl font-bold text-indigo-500 mb-1 group-hover:text-white transition-colors">${item.head}</h4>
                             <p class="text-xs font-bold opacity-50 mb-4 uppercase tracking-tighter">${item.sub}</p>
                             <p class="opacity-70">${item.desc}</p>
                         </div>
@@ -300,7 +293,7 @@
                 matrix.appendChild(secEl);
             });
 
-            gsap.from("#content-matrix .glass-panel", { opacity: 0, x: isAr ? 50 : -50, stagger: 0.1, duration: 1 });
+            gsap.from("#content-matrix .glass-panel", { opacity: 0, y: 30, stagger: 0.1, duration: 1, ease: "power2.out" });
         }
 
         function toggleTheme() {
@@ -310,13 +303,14 @@
             updateThreeColor(newTheme);
         }
 
-        // --- THREE.JS ENGINE ---
+        // --- MOTEUR THREE.JS ---
         let scene, camera, renderer, cloud;
         function initThree() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
             
             const geometry = new THREE.BufferGeometry();
             const count = 4000;
@@ -325,10 +319,10 @@
             geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
             
             const material = new THREE.PointsMaterial({
-                size: 0.08,
+                size: 0.1,
                 color: 0x8b5cf6,
                 transparent: true,
-                opacity: 0.5,
+                opacity: 0.4,
                 blending: THREE.AdditiveBlending
             });
             
@@ -337,8 +331,8 @@
             camera.position.z = 25;
 
             window.addEventListener('mousemove', (e) => {
-                const targetX = (e.clientX - window.innerWidth/2) * 0.001;
-                const targetY = (e.clientY - window.innerHeight/2) * 0.001;
+                const targetX = (e.clientX - window.innerWidth/2) * 0.0005;
+                const targetY = (e.clientY - window.innerHeight/2) * 0.0005;
                 gsap.to(cloud.rotation, { x: targetY, y: targetX, duration: 2 });
             });
 
@@ -347,12 +341,17 @@
 
         function updateThreeColor(theme) {
             const color = theme === 'dark' ? 0x8b5cf6 : 0x6366f1;
-            gsap.to(cloud.material.color, { r: ((color >> 16) & 255) / 255, g: ((color >> 8) & 255) / 255, b: (color & 255) / 255, duration: 1 });
+            gsap.to(cloud.material.color, { 
+                r: ((color >> 16) & 255) / 255, 
+                g: ((color >> 8) & 255) / 255, 
+                b: (color & 255) / 255, 
+                duration: 1 
+            });
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            cloud.rotation.z += 0.0003;
+            cloud.rotation.z += 0.0005;
             renderer.render(scene, camera);
         }
 
@@ -362,22 +361,15 @@
             gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1 });
         });
 
-        document.querySelectorAll('button, a').forEach(el => {
-            el.addEventListener('mouseenter', () => gsap.to(cursor, { scale: 3, opacity: 0.3 }));
-            el.addEventListener('mouseleave', () => gsap.to(cursor, { scale: 1, opacity: 1 }));
-        });
-
-        // --- LOADER ---
+        // --- CHARGEMENT ---
         window.addEventListener('load', () => {
             initThree();
             setLanguage('en');
             
             const tl = gsap.timeline();
-            tl.to("#loader-bar", { width: "100%", duration: 1.5, ease: "power4.inOut" })
-              .to("#loader-text", { y: -50, duration: 0.5 })
-              .to("#loader", { clipPath: "circle(0% at 50% 50%)", duration: 1, ease: "power4.inOut" })
-              .from("nav", { y: -100, opacity: 0, duration: 1 }, "-=0.5")
-              .from(".hero-title", { y: 100, opacity: 0, duration: 1.5, ease: "expo.out" }, "-=1");
+            tl.to("#loader-bar", { width: "100%", duration: 1, ease: "power2.inOut" })
+              .to("#loader", { y: "-100%", duration: 0.8, ease: "power4.inOut", delay: 0.2 })
+              .from("main", { opacity: 0, y: 50, duration: 1, ease: "power3.out" }, "-=0.3");
         });
 
         window.addEventListener('resize', () => {
