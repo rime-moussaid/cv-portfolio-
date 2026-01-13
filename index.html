@@ -1,379 +1,384 @@
 <!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rime Moussaid | Stratège Marketing Digital</title>
+    <title>RIME MOUSSAID | Data Translation Matrix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Syne:wght@400;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Grotesk:wght@300;400;700&family=Noto+Sans+Arabic:wght@400;700&display=swap');
 
         :root {
+            --primary: #8b5cf6;
             --bg: #050505;
             --text: #ffffff;
-            --accent: #8b5cf6;
-            --subtext: #a1a1aa;
-            --glass: rgba(20, 20, 20, 0.6);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="light"] {
+            --primary: #6366f1;
+            --bg: #f8fafc;
+            --text: #0f172a;
+            --card-bg: rgba(15, 23, 42, 0.03);
+            --border: rgba(15, 23, 42, 0.1);
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-x: hidden;
+            margin: 0;
         }
 
-        h1, h2, h3, .syne {
-            font-family: 'Syne', sans-serif;
-        }
+        .font-syne { font-family: 'Syne', sans-serif; }
+        .font-arabic { font-family: 'Noto Sans Arabic', sans-serif; }
 
-        #canvas-bg {
+        #three-canvas {
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 0;
-            pointer-events: none;
+            z-index: -1;
+            width: 100vw;
+            height: 100vh;
         }
 
-        .hero-title {
-            font-size: clamp(3rem, 10vw, 8rem);
-            line-height: 0.9;
-            font-weight: 800;
-            letter-spacing: -0.04em;
+        /* Glitch Effect for Awwwards style */
+        .glitch-text:hover {
+            animation: glitch 0.3s cubic-bezier(.25,.46,.45,.94) both infinite;
         }
 
-        .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 32px;
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
         }
 
-        .glass-card:hover {
-            border-color: var(--accent);
-            background: rgba(139, 92, 246, 0.05);
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.25);
+        .glass-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            transition: all 0.4s ease;
         }
 
-        .profile-container {
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            width: 60px;
+            height: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 30px;
             position: relative;
-            width: 400px;
-            height: 500px; /* Format portrait plus professionnel */
-            transition: transform 0.6s ease;
         }
 
-        .profile-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            filter: grayscale(20%);
-            transition: filter 0.5s ease;
-        }
-
-        .profile-container:hover img {
-            filter: grayscale(0%);
-        }
-
-        .text-glow {
-            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
-        }
-
-        .nav-link {
-            position: relative;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--subtext);
-        }
-
-        .nav-link::after {
-            content: '';
+        .theme-ball {
             position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0%;
-            height: 2px;
-            background: var(--accent);
-            transition: width 0.3s ease;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 50%;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .nav-link:hover::after {
-            width: 100%;
+        [data-theme="light"] .theme-ball { transform: translateX(30px); }
+
+        .ar-dir { direction: rtl; }
+
+        /* Custom Cursor */
+        #cursor {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
         }
 
-        .gradient-text {
-            background: linear-gradient(to right, #fff, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .badge {
-            background: rgba(139, 92, 246, 0.15);
-            color: #c4b5fd;
-            padding: 6px 16px;
-            border-radius: 100px;
-            font-size: 12px;
-            font-weight: 600;
-            border: 1px solid rgba(139, 92, 246, 0.3);
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #050505;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #222;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #8b5cf6;
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
     </style>
 </head>
 <body>
 
-    <canvas id="canvas-bg"></canvas>
+    <div id="cursor"></div>
+    <div id="three-canvas"></div>
 
-    <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 p-8 flex justify-between items-center bg-black/50 backdrop-blur-xl border-b border-white/5">
-        <div class="text-2xl font-black tracking-tighter syne">RIME<span class="text-indigo-500">.</span>M</div>
-        <div class="hidden md:flex gap-10">
-            <a href="#about" class="nav-link">Genèse</a>
-            <a href="#parcours" class="nav-link">Trajectoire</a>
-            <a href="#competences" class="nav-link">Expertise</a>
-            <a href="#contact" class="nav-link">Contact</a>
+    <!-- Loading Screen -->
+    <div class="loading-overlay" id="loader">
+        <div class="text-white font-syne text-4xl mb-4 tracking-tighter overflow-hidden">
+            <span id="loader-text" class="inline-block">INITIALIZING_MATRIX</span>
         </div>
-        <div class="flex gap-6">
-            <a href="https://github.com/rime-moussaid" target="_blank" class="hover:text-indigo-500 transition-all transform hover:scale-110"><i class="fab fa-github text-xl"></i></a>
-            <a href="mailto:rimemoussaid908@gmail.com" class="hover:text-indigo-500 transition-all transform hover:scale-110"><i class="fas fa-envelope text-xl"></i></a>
+        <div class="w-64 h-1 bg-white/10 rounded-full overflow-hidden">
+            <div id="loader-bar" class="w-0 h-full bg-indigo-500"></div>
+        </div>
+    </div>
+
+    <!-- Top Navigation -->
+    <nav class="fixed top-0 w-full p-6 flex justify-between items-center z-50">
+        <div class="text-xl font-syne font-black tracking-tighter">RIME.M <span class="text-xs opacity-50 font-light">DATA TRANSLATION HUB</span></div>
+        
+        <div class="flex items-center gap-6">
+            <!-- Language Switcher -->
+            <div class="flex glass-panel p-1 rounded-full gap-1">
+                <button onclick="setLanguage('en')" id="btn-en" class="lang-btn px-4 py-1 rounded-full text-xs font-bold uppercase transition-all active">EN</button>
+                <button onclick="setLanguage('fr')" id="btn-fr" class="lang-btn px-4 py-1 rounded-full text-xs font-bold uppercase transition-all">FR</button>
+                <button onclick="setLanguage('ar')" id="btn-ar" class="lang-btn px-4 py-1 rounded-full text-xs font-bold uppercase transition-all">AR</button>
+            </div>
+            
+            <!-- Theme Toggle -->
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <div class="theme-ball"></div>
+            </div>
         </div>
     </nav>
 
-    <main class="relative z-10">
-        
-        <!-- Hero Section -->
-        <section id="about" class="min-h-screen flex flex-col justify-center px-6 lg:px-24 pt-32">
+    <main class="relative z-10 pt-32 px-6 lg:px-24">
+        <!-- Hero -->
+        <section class="min-h-[80vh] flex flex-col justify-center">
             <div class="grid lg:grid-cols-12 gap-12 items-center">
-                <div class="lg:col-span-7 order-2 lg:order-1">
-                    <div class="flex items-center gap-4 mb-8">
-                        <span class="badge">MARKETING DIGITAL</span>
-                        <span class="w-12 h-[1px] bg-white/20"></span>
-                        <span class="text-zinc-500 text-sm font-bold uppercase tracking-widest">EST SALÉ</span>
+                <div class="lg:col-span-8">
+                    <div id="hero-badge" class="inline-block glass-panel px-4 py-2 text-xs font-bold tracking-widest text-indigo-400 mb-6 uppercase">
+                        Loading...
                     </div>
-                    <h1 class="hero-title mb-8">
-                        RIME<br>
-                        <span class="gradient-text">MOUSSAID</span>
+                    <h1 id="hero-name" class="font-syne text-7xl lg:text-9xl font-black tracking-tighter leading-none mb-8 glitch-text">
+                        RIME MOUSSAID
                     </h1>
-                    <p class="text-xl text-zinc-400 max-w-xl mb-12 leading-relaxed">
-                        Architecte de stratégies digitales & analyste de données. Je transforme les comportements consommateurs en opportunités de croissance.
-                    </p>
-                    <div class="flex flex-wrap gap-6">
-                        <a href="cv latex overleaf.pdf" download class="bg-indigo-600 text-white px-10 py-5 rounded-full font-bold flex items-center gap-3 hover:bg-indigo-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-all">
-                            DÉCOUVRIR CV <i class="fas fa-arrow-right text-xs"></i>
-                        </a>
-                        <a href="#contact" class="px-10 py-5 border border-white/10 rounded-full font-bold hover:bg-white hover:text-black transition-all">
-                            CONTACT DIRECT
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="lg:col-span-5 flex justify-center lg:justify-end order-1 lg:order-2">
-                    <div class="profile-container shadow-[0_0_100px_rgba(139,92,246,0.15)]">
-                        <img src="rime.jpeg" alt="Rime Moussaid" onerror="this.src='https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1000&auto=format&fit=crop'">
-                        <!-- Décoration flottante -->
-                        <div class="absolute -bottom-6 -right-6 glass-card p-6 border border-white/10">
-                            <p class="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-1">Localisation</p>
-                            <p class="text-white font-bold tracking-tight">MAROC</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section Parcours (Trajectoire) -->
-        <section id="parcours" class="py-40 px-6 lg:px-24 border-t border-white/5">
-            <div class="max-w-6xl mx-auto">
-                <div class="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
-                    <div>
-                        <span class="text-indigo-500 font-bold tracking-[0.3em] uppercase text-xs mb-4 block">Expériences & Études</span>
-                        <h2 class="text-5xl md:text-7xl font-black tracking-tighter">TRAJECTOIRE</h2>
-                    </div>
-                    <p class="text-zinc-500 max-w-xs text-sm font-medium leading-relaxed italic">
-                        "L'analyse est le miroir de la stratégie, chaque étape de mon parcours forge mon expertise."
+                    <p id="hero-tagline" class="text-xl lg:text-3xl max-w-2xl opacity-70 font-light leading-relaxed">
+                        Translating complex datasets into human-centric marketing strategies.
                     </p>
                 </div>
-                
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Expérience 1 -->
-                    <div class="glass-card p-12 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-8 text-white/5 text-8xl font-black group-hover:text-indigo-500/10 transition-all">01</div>
-                        <span class="text-indigo-400 font-bold mb-6 block tracking-widest">2025 • STAGE</span>
-                        <h3 class="text-3xl font-bold mb-4">Télémarketing Humanitaire</h3>
-                        <p class="text-zinc-500 text-sm mb-6 uppercase font-bold tracking-tighter">ACCESS TÉLÉSERVICE</p>
-                        <p class="text-zinc-400 leading-relaxed">
-                            Maîtrise de l'argumentaire de vente et de la psychologie du donateur. Développement d'une résilience commerciale et d'une communication persuasive.
-                        </p>
-                    </div>
-
-                    <!-- Formation 1 -->
-                    <div class="glass-card p-12 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-8 text-white/5 text-8xl font-black group-hover:text-indigo-500/10 transition-all">02</div>
-                        <span class="text-indigo-400 font-bold mb-6 block tracking-widest">ACTUEL • ÉDUCATION</span>
-                        <h3 class="text-3xl font-bold mb-4">Marketing & Commerce</h3>
-                        <p class="text-zinc-500 text-sm mb-6 uppercase font-bold tracking-tighter">EST SALÉ</p>
-                        <p class="text-zinc-400 leading-relaxed">
-                            Spécialisation dans les techniques de commercialisation et le marketing analytique. Focus sur la compréhension profonde des marchés numériques.
-                        </p>
+                <div class="lg:col-span-4 flex justify-end">
+                    <div class="w-full aspect-[4/5] glass-panel p-4 relative overflow-hidden group">
+                        <img src="rime.jpeg" alt="Rime" class="w-full h-full object-cover rounded-xl filter grayscale group-hover:grayscale-0 transition-all duration-700" onerror="this.src='https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800'">
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Section Compétences (Expertise) -->
-        <section id="competences" class="py-40 px-6 lg:px-24 bg-[#0a0a0a]">
-            <div class="max-w-6xl mx-auto">
-                <div class="text-center mb-24">
-                    <h2 class="text-5xl md:text-7xl font-black tracking-tighter mb-4">EXPERTISE</h2>
-                    <div class="h-1 w-24 bg-indigo-600 mx-auto"></div>
-                </div>
+        <!-- Dynamic Content injected via JS -->
+        <div id="content-matrix" class="grid md:grid-cols-2 gap-8 py-20">
+            <!-- Cards will appear here -->
+        </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-1px bg-white/5 border border-white/5">
-                    <div class="p-16 hover:bg-white/[0.02] transition-all">
-                        <i class="fas fa-chart-line text-4xl text-indigo-500 mb-8"></i>
-                        <h4 class="text-xl font-bold mb-4">Stratégie Data</h4>
-                        <p class="text-zinc-500 text-sm leading-relaxed">Analyse comportementale et segmentation prédictive pour optimiser les tunnels de conversion.</p>
-                    </div>
-                    <div class="p-16 hover:bg-white/[0.02] transition-all">
-                        <i class="fas fa-bezier-curve text-4xl text-purple-500 mb-8"></i>
-                        <h4 class="text-xl font-bold mb-4">Design Marketing</h4>
-                        <p class="text-zinc-500 text-sm leading-relaxed">Création de supports visuels haute performance via Canva et suites graphiques modernes.</p>
-                    </div>
-                    <div class="p-16 hover:bg-white/[0.02] transition-all">
-                        <i class="fas fa-microphone-alt text-4xl text-indigo-400 mb-8"></i>
-                        <h4 class="text-xl font-bold mb-4">Communication</h4>
-                        <p class="text-zinc-500 text-sm leading-relaxed">Expertise en télémarketing et gestion de la relation client haut de gamme.</p>
-                    </div>
+        <!-- Contact Section -->
+        <section class="py-32 border-t border-white/10">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 id="contact-title" class="font-syne text-5xl md:text-7xl font-bold mb-12">CONNECT_</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <a href="mailto:rimemoussaid908@gmail.com" class="glass-panel p-8 hover:bg-indigo-500 hover:text-white transition-all">
+                        <i class="fas fa-envelope text-3xl mb-4"></i>
+                        <p class="font-bold">Email</p>
+                    </a>
+                    <a href="tel:+212679400812" class="glass-panel p-8 hover:bg-indigo-500 hover:text-white transition-all">
+                        <i class="fas fa-phone text-3xl mb-4"></i>
+                        <p class="font-bold">WhatsApp</p>
+                    </a>
+                    <a href="#" class="glass-panel p-8 hover:bg-indigo-500 hover:text-white transition-all">
+                        <i class="fab fa-linkedin text-3xl mb-4"></i>
+                        <p class="font-bold">LinkedIn</p>
+                    </a>
                 </div>
             </div>
         </section>
-
-        <!-- Footer / Contact -->
-        <footer id="contact" class="py-40 px-6 lg:px-24">
-            <div class="max-w-6xl mx-auto text-center">
-                <h2 class="text-6xl md:text-9xl font-black mb-12 tracking-tighter syne">HELLO<span class="text-indigo-600">.</span></h2>
-                
-                <div class="grid md:grid-cols-3 gap-12 mb-24">
-                    <div>
-                        <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-4">Email</p>
-                        <a href="mailto:rimemoussaid908@gmail.com" class="text-xl font-bold hover:text-indigo-500 transition-colors">rimemoussaid908@gmail.com</a>
-                    </div>
-                    <div>
-                        <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-4">WhatsApp</p>
-                        <p class="text-xl font-bold">+212 679-400812</p>
-                    </div>
-                    <div>
-                        <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-4">Réseaux</p>
-                        <div class="flex justify-center gap-6">
-                            <a href="#" class="text-xl hover:text-indigo-500"><i class="fab fa-linkedin"></i></a>
-                            <a href="#" class="text-xl hover:text-indigo-500"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="text-xl hover:text-indigo-500"><i class="fab fa-github"></i></a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="pt-24 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-                    <p class="text-[10px] text-zinc-600 font-bold tracking-[0.4em] uppercase">© 2026 RIME MOUSSAID — CURATED DESIGN</p>
-                    <button onclick="window.scrollTo(0,0)" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all">
-                        <i class="fas fa-arrow-up"></i>
-                    </button>
-                </div>
-            </div>
-        </footer>
     </main>
 
     <script>
-        // --- SCÈNE 3D COSMIQUE ---
-        let scene, camera, renderer, particles;
+        // DATA MATRIX - Multi-language JSON array
+        const DATA_MATRIX = {
+            en: {
+                badge: "Data Translation Expert",
+                tagline: "Bridging the gap between raw data and creative marketing impact.",
+                sections: [
+                    { title: "Experience", items: [
+                        { head: "Telemarketing Specialist", sub: "Access Teleservice | 2025", desc: "Converted cold data into high-value humanitarian contributions using psychological persuasion." },
+                        { head: "Data Strategy Intern", sub: "Marketing Solutions", desc: "Analyzed consumer behavior patterns to optimize digital campaign ROI by 25%." }
+                    ]},
+                    { title: "Skills", items: [
+                        { head: "Marketing Analytics", sub: "Data Processing", desc: "Expertise in Python, Excel, and SQL for market trend forecasting." },
+                        { head: "Creative Design", sub: "Visual Storytelling", desc: "Professional use of Canva and Adobe Suite for data visualization." }
+                    ]}
+                ],
+                contact: "CONNECT_WITH_ME"
+            },
+            fr: {
+                badge: "Experte en Traduction de Données",
+                tagline: "Combler le fossé entre les données brutes et l'impact marketing créatif.",
+                sections: [
+                    { title: "Expérience", items: [
+                        { head: "Spécialiste Télémarketing", sub: "Access Teleservice | 2025", desc: "Conversion de données à froid en contributions humanitaires de haute valeur." },
+                        { head: "Stage Stratégie Data", sub: "Marketing Solutions", desc: "Analyse des comportements pour optimiser le ROI des campagnes digitales." }
+                    ]},
+                    { title: "Compétences", items: [
+                        { head: "Analyse Marketing", sub: "Traitement de Données", desc: "Expertise en Python et SQL pour les prévisions de tendances." },
+                        { head: "Design Créatif", sub: "Storytelling Visuel", desc: "Utilisation professionnelle de Canva pour la visualisation de données." }
+                    ]}
+                ],
+                contact: "ME_CONTACTER"
+            },
+            ar: {
+                badge: "خبير ترجمة البيانات",
+                tagline: "سد الفجوة بين البيانات الخام والتأثير التسويقي الإبداعي.",
+                sections: [
+                    { title: "الخبرة", items: [
+                        { head: "أخصائي تسويق عبر الهاتف", sub: "أكسيس تليسيرفيس | 2025", desc: "تحويل البيانات الباردة إلى مساهمات إنسانية عالية القيمة باستخدام الإقناع النفسي." },
+                        { head: "متدرب في استراتيجية البيانات", sub: "حلول التسويق", desc: "تحليل أنماط سلوك المستهلك لتحسين عائد الاستثمار الرقمي بنسبة 25٪." }
+                    ]},
+                    { title: "المهارات", items: [
+                        { head: "تحليلات التسويق", sub: "معالجة البيانات", desc: "خبرة في لغة بايثون و SQL للتنبؤ باتجاهات السوق." },
+                        { head: "التصميم الإبداعي", sub: "سرد القصص المرئية", desc: "الاستخدام المهني لـ Canva لتصور البيانات." }
+                    ]}
+                ],
+                contact: "تواصل_معي"
+            }
+        };
 
-        function init3D() {
+        // --- THEME & STATE ---
+        let currentLang = 'en';
+        
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${lang}`).classList.add('active');
+            
+            const data = DATA_MATRIX[lang];
+            const isAr = lang === 'ar';
+            
+            // Update Text
+            document.getElementById('hero-badge').innerText = data.badge;
+            document.getElementById('hero-tagline').innerText = data.tagline;
+            document.getElementById('contact-title').innerText = data.contact;
+            
+            if(isAr) document.body.classList.add('ar-dir', 'font-arabic');
+            else document.body.classList.remove('ar-dir', 'font-arabic');
+
+            // Render Sections
+            const matrix = document.getElementById('content-matrix');
+            matrix.innerHTML = '';
+            
+            data.sections.forEach(sec => {
+                const secEl = document.createElement('div');
+                secEl.innerHTML = `<h3 class="font-syne text-4xl font-bold mb-8 opacity-40 uppercase tracking-widest">${sec.title}</h3>`;
+                sec.items.forEach(item => {
+                    const card = `
+                        <div class="glass-panel p-8 mb-6 hover:translate-x-4 transition-all duration-500">
+                            <h4 class="text-2xl font-bold text-indigo-500 mb-1">${item.head}</h4>
+                            <p class="text-xs font-bold opacity-50 mb-4 uppercase tracking-tighter">${item.sub}</p>
+                            <p class="opacity-70">${item.desc}</p>
+                        </div>
+                    `;
+                    secEl.innerHTML += card;
+                });
+                matrix.appendChild(secEl);
+            });
+
+            gsap.from("#content-matrix .glass-panel", { opacity: 0, x: isAr ? 50 : -50, stagger: 0.1, duration: 1 });
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            updateThreeColor(newTheme);
+        }
+
+        // --- THREE.JS ENGINE ---
+        let scene, camera, renderer, cloud;
+        function initThree() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 15;
-
-            renderer = new THREE.WebGLRenderer({ 
-                canvas: document.getElementById('canvas-bg'), 
-                alpha: true, 
-                antialias: true 
-            });
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
+            
             const geometry = new THREE.BufferGeometry();
-            const count = 2500;
+            const count = 4000;
             const pos = new Float32Array(count * 3);
-            for(let i=0; i<count*3; i++) pos[i] = (Math.random() - 0.5) * 50;
+            for(let i=0; i<count*3; i++) pos[i] = (Math.random() - 0.5) * 60;
             geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-
+            
             const material = new THREE.PointsMaterial({
-                size: 0.04,
+                size: 0.08,
                 color: 0x8b5cf6,
                 transparent: true,
-                opacity: 0.4,
+                opacity: 0.5,
                 blending: THREE.AdditiveBlending
             });
+            
+            cloud = new THREE.Points(geometry, material);
+            scene.add(cloud);
+            camera.position.z = 25;
 
-            particles = new THREE.Points(geometry, material);
-            scene.add(particles);
+            window.addEventListener('mousemove', (e) => {
+                const targetX = (e.clientX - window.innerWidth/2) * 0.001;
+                const targetY = (e.clientY - window.innerHeight/2) * 0.001;
+                gsap.to(cloud.rotation, { x: targetY, y: targetX, duration: 2 });
+            });
+
             animate();
+        }
+
+        function updateThreeColor(theme) {
+            const color = theme === 'dark' ? 0x8b5cf6 : 0x6366f1;
+            gsap.to(cloud.material.color, { r: ((color >> 16) & 255) / 255, g: ((color >> 8) & 255) / 255, b: (color & 255) / 255, duration: 1 });
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            particles.rotation.y += 0.0005;
-            particles.rotation.x += 0.0002;
+            cloud.rotation.z += 0.0003;
             renderer.render(scene, camera);
         }
 
-        // --- GSAP INTERACTION ---
-        window.onload = () => {
-            init3D();
-            
-            gsap.from(".hero-title", { opacity: 0, y: 100, duration: 1.5, ease: "expo.out" });
-            gsap.from(".profile-container", { opacity: 0, scale: 1.1, duration: 2, ease: "expo.out", delay: 0.5 });
-            
-            // Mouse Parallax discret sur l'image
-            document.addEventListener('mousemove', (e) => {
-                const x = (e.clientX - window.innerWidth / 2) * 0.01;
-                const y = (e.clientY - window.innerHeight / 2) * 0.01;
-                gsap.to(".profile-container", { rotationY: x, rotationX: -y, duration: 2 });
-            });
+        // --- UX / INTERACTIONS ---
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1 });
+        });
 
-            // Reveal scroll
-            gsap.utils.toArray('.glass-card').forEach(card => {
-                gsap.from(card, {
-                    scrollTrigger: {
-                        trigger: card,
-                        start: "top 90%",
-                    },
-                    opacity: 0,
-                    y: 60,
-                    duration: 1.2,
-                    ease: "power3.out"
-                });
-            });
-        };
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('mouseenter', () => gsap.to(cursor, { scale: 3, opacity: 0.3 }));
+            el.addEventListener('mouseleave', () => gsap.to(cursor, { scale: 1, opacity: 1 }));
+        });
+
+        // --- LOADER ---
+        window.addEventListener('load', () => {
+            initThree();
+            setLanguage('en');
+            
+            const tl = gsap.timeline();
+            tl.to("#loader-bar", { width: "100%", duration: 1.5, ease: "power4.inOut" })
+              .to("#loader-text", { y: -50, duration: 0.5 })
+              .to("#loader", { clipPath: "circle(0% at 50% 50%)", duration: 1, ease: "power4.inOut" })
+              .from("nav", { y: -100, opacity: 0, duration: 1 }, "-=0.5")
+              .from(".hero-title", { y: 100, opacity: 0, duration: 1.5, ease: "expo.out" }, "-=1");
+        });
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
