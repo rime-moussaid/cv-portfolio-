@@ -123,6 +123,16 @@
             align-items: center;
             flex-direction: column;
         }
+
+        /* Conteneur spécifique pour le portrait 3D */
+        #photo-3d-container {
+            width: 100%;
+            aspect-ratio: 4/5;
+            cursor: grab;
+        }
+        #photo-3d-container:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
 <body>
@@ -173,8 +183,9 @@
                     </p>
                 </div>
                 <div class="lg:col-span-4 flex justify-end">
-                    <div class="w-full aspect-[4/5] glass-panel p-4 relative overflow-hidden group">
-                        <img src="rime.jpeg" alt="Rime" class="w-full h-full object-cover rounded-xl filter grayscale group-hover:grayscale-0 transition-all duration-700" onerror="this.src='https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800'">
+                    <!-- Conteneur pour la photo en 3D -->
+                    <div class="w-full glass-panel p-2 relative overflow-hidden group">
+                        <div id="photo-3d-container"></div>
                     </div>
                 </div>
             </div>
@@ -303,7 +314,7 @@
             updateThreeColor(newTheme);
         }
 
-        // --- MOTEUR THREE.JS ---
+        // --- MOTEUR THREE.JS (ARRIÈRE-PLAN) ---
         let scene, camera, renderer, cloud;
         function initThree() {
             scene = new THREE.Scene();
@@ -339,6 +350,66 @@
             animate();
         }
 
+        // --- MOTEUR PHOTO 3D (PORTRAIT) ---
+        let photoScene, photoCamera, photoRenderer, photoCube;
+        function initPhoto3D() {
+            const container = document.getElementById('photo-3d-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            photoScene = new THREE.Scene();
+            photoCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            photoCamera.position.z = 5;
+
+            photoRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            photoRenderer.setSize(width, height);
+            photoRenderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(photoRenderer.domElement);
+
+            const textureLoader = new THREE.TextureLoader();
+            // Chargement de l'image (avec fallback sur Unsplash si rime.jpeg n'existe pas localement)
+            const photoTexture = textureLoader.load('rime.jpeg', undefined, undefined, function() {
+                photoTexture.image = new Image();
+                photoTexture.image.src = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800';
+            });
+
+            // Création d'un "pancarte" ou cube 3D pour la photo
+            const geometry = new THREE.BoxGeometry(3, 4, 0.5);
+            const material = [
+                new THREE.MeshStandardMaterial({ color: 0x222222 }), // right
+                new THREE.MeshStandardMaterial({ color: 0x222222 }), // left
+                new THREE.MeshStandardMaterial({ color: 0x222222 }), // top
+                new THREE.MeshStandardMaterial({ color: 0x222222 }), // bottom
+                new THREE.MeshStandardMaterial({ map: photoTexture }), // front
+                new THREE.MeshStandardMaterial({ color: 0x111111 })  // back
+            ];
+
+            photoCube = new THREE.Mesh(geometry, material);
+            photoScene.add(photoCube);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            photoScene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0xffffff, 1);
+            pointLight.position.set(5, 5, 5);
+            photoScene.add(pointLight);
+
+            // Interaction souris pour le cube
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / width) * 2 - 1;
+                const y = -((e.clientY - rect.top) / height) * 2 + 1;
+                gsap.to(photoCube.rotation, { y: x * 0.5, x: -y * 0.5, duration: 0.5 });
+            });
+
+            function animatePhoto() {
+                requestAnimationFrame(animatePhoto);
+                if (photoCube) photoCube.rotation.y += 0.005; // Rotation automatique légère
+                photoRenderer.render(photoScene, photoCamera);
+            }
+            animatePhoto();
+        }
+
         function updateThreeColor(theme) {
             const color = theme === 'dark' ? 0x8b5cf6 : 0x6366f1;
             gsap.to(cloud.material.color, { 
@@ -364,6 +435,7 @@
         // --- CHARGEMENT ---
         window.addEventListener('load', () => {
             initThree();
+            initPhoto3D();
             setLanguage('en');
             
             const tl = gsap.timeline();
@@ -376,7 +448,14 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+
+            // Mise à jour de la photo 3D sur resize
+            const container = document.getElementById('photo-3d-container');
+            if(photoRenderer && container) {
+                photoCamera.aspect = container.clientWidth / container.clientHeight;
+                photoCamera.updateProjectionMatrix();
+                photoRenderer.setSize(container.clientWidth, container.clientHeight);
+            }
         });
     </script>
 </body>
-</html>
