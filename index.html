@@ -124,14 +124,19 @@
             flex-direction: column;
         }
 
-        /* Conteneur spécifique pour le portrait 3D */
-        #photo-3d-container {
-            width: 100%;
-            aspect-ratio: 4/5;
-            cursor: grab;
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
         }
-        #photo-3d-container:active {
-            cursor: grabbing;
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .cv-button {
+            background: linear-gradient(45deg, var(--primary), #a855f7);
+            box-shadow: 0 10px 30px -10px var(--primary);
         }
     </style>
 </head>
@@ -171,30 +176,43 @@
         <!-- Section Hero -->
         <section class="min-h-[80vh] flex flex-col justify-center">
             <div class="grid lg:grid-cols-12 gap-12 items-center">
-                <div class="lg:col-span-8">
+                <div class="lg:col-span-7">
                     <div id="hero-badge" class="inline-block glass-panel px-4 py-2 text-xs font-bold tracking-widest text-indigo-400 mb-6 uppercase">
                         Loading...
                     </div>
-                    <h1 id="hero-name" class="font-syne text-7xl lg:text-9xl font-black tracking-tighter leading-none mb-8 glitch-text">
+                    <h1 id="hero-name" class="font-syne text-6xl lg:text-8xl font-black tracking-tighter leading-none mb-8 glitch-text">
                         RIME MOUSSAID
                     </h1>
-                    <p id="hero-tagline" class="text-xl lg:text-3xl max-w-2xl opacity-70 font-light leading-relaxed">
+                    <p id="hero-tagline" class="text-xl lg:text-2xl max-w-2xl opacity-70 font-light leading-relaxed mb-10">
                         Translating complex datasets into human-centric marketing strategies.
                     </p>
+                    
+                    <!-- Bouton CV -->
+                    <a href="Awesome_CV (2).pdf" download="Awesome_CV (2).pdf" class="cv-button inline-flex items-center gap-4 px-8 py-4 rounded-2xl text-white font-bold transition-all hover:scale-105 active:scale-95 group">
+                        <i class="fas fa-file-pdf text-xl"></i>
+                        <span id="cv-text" class="tracking-widest uppercase text-sm">Download Resume</span>
+                        <i class="fas fa-download opacity-50 group-hover:translate-y-1 transition-transform"></i>
+                    </a>
                 </div>
-                <div class="lg:col-span-4 flex justify-end">
-                    <!-- Conteneur pour la photo en 3D -->
-                    <div class="w-full glass-panel p-2 relative overflow-hidden group">
-                        <div id="photo-3d-container"></div>
+                
+                <div class="lg:col-span-5 flex justify-center lg:justify-end">
+                    <!-- Photo de profil simplifiée et réduite -->
+                    <div class="w-64 lg:w-80 float-animation">
+                        <div class="glass-panel p-3 relative overflow-hidden group rounded-[2.5rem]">
+                            <img 
+                                src="rime.jpeg" 
+                                alt="Rime Moussaid" 
+                                class="w-full aspect-[4/5] object-cover rounded-[2rem] grayscale hover:grayscale-0 transition-all duration-700"
+                                onerror="this.src='https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800'"
+                            >
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Contenu dynamique injecté via JS -->
-        <div id="content-matrix" class="grid md:grid-cols-2 gap-8 py-20">
-            <!-- Les cartes d'expérience et de compétences apparaîtront ici -->
-        </div>
+        <div id="content-matrix" class="grid md:grid-cols-2 gap-8 py-20"></div>
 
         <!-- Section Contact -->
         <section class="py-32 border-t border-white/10">
@@ -224,6 +242,7 @@
             en: {
                 badge: "Data Translation Expert",
                 tagline: "Bridging the gap between raw data and creative marketing impact.",
+                cv: "Download Resume",
                 sections: [
                     { title: "Experience", items: [
                         { head: "Telemarketing Specialist", sub: "Access Teleservice | 2025", desc: "Converted cold data into high-value humanitarian contributions using psychological persuasion." },
@@ -239,6 +258,7 @@
             fr: {
                 badge: "Experte en Traduction de Données",
                 tagline: "Combler le fossé entre les données brutes et l'impact marketing créatif.",
+                cv: "Télécharger mon CV",
                 sections: [
                     { title: "Expérience", items: [
                         { head: "Spécialiste Télémarketing", sub: "Access Teleservice | 2025", desc: "Conversion de données à froid en contributions humanitaires de haute valeur." },
@@ -254,6 +274,7 @@
             ar: {
                 badge: "خبير ترجمة البيانات",
                 tagline: "سد الفجوة بين البيانات الخام والتأثير التسويقي الإبداعي.",
+                cv: "تحميل السيرة الذاتية",
                 sections: [
                     { title: "الخبرة", items: [
                         { head: "أخصائي تسويق عبر الهاتف", sub: "أكسيس تليسيرفيس | 2025", desc: "تحويل البيانات الباردة إلى مساهمات إنسانية عالية القيمة باستخدام الإقناع النفسي." },
@@ -281,6 +302,7 @@
             
             document.getElementById('hero-badge').innerText = data.badge;
             document.getElementById('hero-tagline').innerText = data.tagline;
+            document.getElementById('cv-text').innerText = data.cv;
             document.getElementById('contact-title').innerText = data.contact;
             
             if(isAr) document.body.classList.add('ar-dir', 'font-arabic');
@@ -324,11 +346,7 @@
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             
-            renderer = new THREE.WebGLRenderer({ 
-                canvas: canvas, 
-                alpha: true, 
-                antialias: true 
-            });
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             
@@ -359,69 +377,6 @@
             animate();
         }
 
-        // --- MOTEUR PHOTO 3D (PORTRAIT) ---
-        let photoScene, photoCamera, photoRenderer, photoCube;
-        function initPhoto3D() {
-            const container = document.getElementById('photo-3d-container');
-            if (!container) return;
-
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-
-            photoScene = new THREE.Scene();
-            photoCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-            photoCamera.position.z = 5;
-
-            photoRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            photoRenderer.setSize(width, height);
-            photoRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            container.appendChild(photoRenderer.domElement);
-
-            const textureLoader = new THREE.TextureLoader();
-            const photoTexture = textureLoader.load('rime.jpeg', undefined, undefined, function() {
-                // Fallback si l'image locale n'est pas trouvée
-                photoTexture.image = new Image();
-                photoTexture.crossOrigin = "anonymous";
-                photoTexture.image.src = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800';
-            });
-
-            const geometry = new THREE.BoxGeometry(3, 4, 0.5);
-            const material = [
-                new THREE.MeshStandardMaterial({ color: 0x222222 }), 
-                new THREE.MeshStandardMaterial({ color: 0x222222 }), 
-                new THREE.MeshStandardMaterial({ color: 0x222222 }), 
-                new THREE.MeshStandardMaterial({ color: 0x222222 }), 
-                new THREE.MeshStandardMaterial({ map: photoTexture }), 
-                new THREE.MeshStandardMaterial({ color: 0x111111 })  
-            ];
-
-            photoCube = new THREE.Mesh(geometry, material);
-            photoScene.add(photoCube);
-
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-            photoScene.add(ambientLight);
-
-            const pointLight = new THREE.PointLight(0xffffff, 1);
-            pointLight.position.set(5, 5, 5);
-            photoScene.add(pointLight);
-
-            container.addEventListener('mousemove', (e) => {
-                const rect = container.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / width) * 2 - 1;
-                const y = -((e.clientY - rect.top) / height) * 2 + 1;
-                if (photoCube) gsap.to(photoCube.rotation, { y: x * 0.5, x: -y * 0.5, duration: 0.5 });
-            });
-
-            function animatePhoto() {
-                requestAnimationFrame(animatePhoto);
-                if (photoCube) photoCube.rotation.y += 0.005;
-                if (photoRenderer && photoScene && photoCamera) {
-                    photoRenderer.render(photoScene, photoCamera);
-                }
-            }
-            animatePhoto();
-        }
-
         function updateThreeColor(theme) {
             if (!cloud) return;
             const color = theme === 'dark' ? 0x8b5cf6 : 0x6366f1;
@@ -436,9 +391,7 @@
         function animate() {
             requestAnimationFrame(animate);
             if (cloud) cloud.rotation.z += 0.0005;
-            if (renderer && scene && camera) {
-                renderer.render(scene, camera);
-            }
+            if (renderer && scene && camera) renderer.render(scene, camera);
         }
 
         // --- UX / INTERACTIONS ---
@@ -450,7 +403,6 @@
         // --- CHARGEMENT ---
         window.addEventListener('DOMContentLoaded', () => {
             initThree();
-            initPhoto3D();
             setLanguage('en');
             
             const tl = gsap.timeline();
@@ -465,15 +417,9 @@
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
             }
-
-            const container = document.getElementById('photo-3d-container');
-            if(photoRenderer && container && photoCamera) {
-                photoCamera.aspect = container.clientWidth / container.clientHeight;
-                photoCamera.updateProjectionMatrix();
-                photoRenderer.setSize(container.clientWidth, container.clientHeight);
-            }
         });
     </script>
 </body>
 </html>
+
     
