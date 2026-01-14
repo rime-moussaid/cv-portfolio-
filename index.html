@@ -138,7 +138,7 @@
 <body>
 
     <div id="cursor"></div>
-    <div id="three-canvas"></div>
+    <canvas id="three-canvas"></canvas>
 
     <!-- Écran de chargement -->
     <div class="loading-overlay" id="loader">
@@ -273,7 +273,8 @@
         function setLanguage(lang) {
             currentLang = lang;
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${lang}`).classList.add('active');
+            const btn = document.getElementById(`btn-${lang}`);
+            if (btn) btn.classList.add('active');
             
             const data = DATA_MATRIX[lang];
             const isAr = lang === 'ar';
@@ -311,17 +312,25 @@
             const html = document.documentElement;
             const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', newTheme);
-            updateThreeColor(newTheme);
+            if (cloud) updateThreeColor(newTheme);
         }
 
         // --- MOTEUR THREE.JS (ARRIÈRE-PLAN) ---
         let scene, camera, renderer, cloud;
         function initThree() {
+            const canvas = document.getElementById('three-canvas');
+            if (!canvas) return;
+
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true, antialias: true });
+            
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: canvas, 
+                alpha: true, 
+                antialias: true 
+            });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             
             const geometry = new THREE.BufferGeometry();
             const count = 4000;
@@ -344,7 +353,7 @@
             window.addEventListener('mousemove', (e) => {
                 const targetX = (e.clientX - window.innerWidth/2) * 0.0005;
                 const targetY = (e.clientY - window.innerHeight/2) * 0.0005;
-                gsap.to(cloud.rotation, { x: targetY, y: targetX, duration: 2 });
+                if (cloud) gsap.to(cloud.rotation, { x: targetY, y: targetX, duration: 2 });
             });
 
             animate();
@@ -354,6 +363,8 @@
         let photoScene, photoCamera, photoRenderer, photoCube;
         function initPhoto3D() {
             const container = document.getElementById('photo-3d-container');
+            if (!container) return;
+
             const width = container.clientWidth;
             const height = container.clientHeight;
 
@@ -363,25 +374,25 @@
 
             photoRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             photoRenderer.setSize(width, height);
-            photoRenderer.setPixelRatio(window.devicePixelRatio);
+            photoRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(photoRenderer.domElement);
 
             const textureLoader = new THREE.TextureLoader();
-            // Chargement de l'image (avec fallback sur Unsplash si rime.jpeg n'existe pas localement)
             const photoTexture = textureLoader.load('rime.jpeg', undefined, undefined, function() {
+                // Fallback si l'image locale n'est pas trouvée
                 photoTexture.image = new Image();
+                photoTexture.crossOrigin = "anonymous";
                 photoTexture.image.src = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800';
             });
 
-            // Création d'un "pancarte" ou cube 3D pour la photo
             const geometry = new THREE.BoxGeometry(3, 4, 0.5);
             const material = [
-                new THREE.MeshStandardMaterial({ color: 0x222222 }), // right
-                new THREE.MeshStandardMaterial({ color: 0x222222 }), // left
-                new THREE.MeshStandardMaterial({ color: 0x222222 }), // top
-                new THREE.MeshStandardMaterial({ color: 0x222222 }), // bottom
-                new THREE.MeshStandardMaterial({ map: photoTexture }), // front
-                new THREE.MeshStandardMaterial({ color: 0x111111 })  // back
+                new THREE.MeshStandardMaterial({ color: 0x222222 }), 
+                new THREE.MeshStandardMaterial({ color: 0x222222 }), 
+                new THREE.MeshStandardMaterial({ color: 0x222222 }), 
+                new THREE.MeshStandardMaterial({ color: 0x222222 }), 
+                new THREE.MeshStandardMaterial({ map: photoTexture }), 
+                new THREE.MeshStandardMaterial({ color: 0x111111 })  
             ];
 
             photoCube = new THREE.Mesh(geometry, material);
@@ -394,23 +405,25 @@
             pointLight.position.set(5, 5, 5);
             photoScene.add(pointLight);
 
-            // Interaction souris pour le cube
             container.addEventListener('mousemove', (e) => {
                 const rect = container.getBoundingClientRect();
                 const x = ((e.clientX - rect.left) / width) * 2 - 1;
                 const y = -((e.clientY - rect.top) / height) * 2 + 1;
-                gsap.to(photoCube.rotation, { y: x * 0.5, x: -y * 0.5, duration: 0.5 });
+                if (photoCube) gsap.to(photoCube.rotation, { y: x * 0.5, x: -y * 0.5, duration: 0.5 });
             });
 
             function animatePhoto() {
                 requestAnimationFrame(animatePhoto);
-                if (photoCube) photoCube.rotation.y += 0.005; // Rotation automatique légère
-                photoRenderer.render(photoScene, photoCamera);
+                if (photoCube) photoCube.rotation.y += 0.005;
+                if (photoRenderer && photoScene && photoCamera) {
+                    photoRenderer.render(photoScene, photoCamera);
+                }
             }
             animatePhoto();
         }
 
         function updateThreeColor(theme) {
+            if (!cloud) return;
             const color = theme === 'dark' ? 0x8b5cf6 : 0x6366f1;
             gsap.to(cloud.material.color, { 
                 r: ((color >> 16) & 255) / 255, 
@@ -422,18 +435,20 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            cloud.rotation.z += 0.0005;
-            renderer.render(scene, camera);
+            if (cloud) cloud.rotation.z += 0.0005;
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
         }
 
         // --- UX / INTERACTIONS ---
         const cursor = document.getElementById('cursor');
         document.addEventListener('mousemove', (e) => {
-            gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1 });
+            if (cursor) gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.1 });
         });
 
         // --- CHARGEMENT ---
-        window.addEventListener('load', () => {
+        window.addEventListener('DOMContentLoaded', () => {
             initThree();
             initPhoto3D();
             setLanguage('en');
@@ -445,13 +460,14 @@
         });
 
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (renderer && camera) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
 
-            // Mise à jour de la photo 3D sur resize
             const container = document.getElementById('photo-3d-container');
-            if(photoRenderer && container) {
+            if(photoRenderer && container && photoCamera) {
                 photoCamera.aspect = container.clientWidth / container.clientHeight;
                 photoCamera.updateProjectionMatrix();
                 photoRenderer.setSize(container.clientWidth, container.clientHeight);
@@ -459,3 +475,5 @@
         });
     </script>
 </body>
+</html>
+    
